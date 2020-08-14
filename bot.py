@@ -4,6 +4,7 @@ import requests
 import discord
 import json
 import re
+import urllib.parse
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,7 +29,8 @@ def FindURL(string):
     return [x[0] for x in url] 
 
 def expand(url):
-    exp_response = requests.get(EXP_BASE + url)
+    encoded_url = urllib.parse.quote(url)
+    exp_response = requests.get(EXP_BASE + encoded_url)
     if exp_response.status_code == requests.codes.ok:
         exp_url = exp_response.content.decode('utf-8')
         return exp_url

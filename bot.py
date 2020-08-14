@@ -66,7 +66,7 @@ async def on_message(message):
             if expanded_url is None:
                 await message.channel.send('Could not expand url')
             else: 
-                await message.channel.send('Expanded URL: ' + expanded_url)
+                await message.channel.send('Expanded URL: `' + expanded_url + "`")
 
                 # VT Analysis
                 vt_response = vt_check(expanded_url)

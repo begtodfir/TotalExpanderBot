@@ -78,7 +78,7 @@ async def on_message(message):
                 elif '0' in str(vt_response):
                     await message.channel.send('VirusTotal Analysis: 0 engines detected URL as malicious. Nonetheless, treat with caution.')
                 else:
-                    await message.channel.send('VirusTotal Analysis: ' + str(vt_response) + ' engines detected as malicious! DO NOT CLICK!')
+                    await message.channel.send('VirusTotal Analysis: ' + str(vt_response) + ' engines detected URL as malicious! DO NOT CLICK!')
 
 
 client.run(TOKEN)

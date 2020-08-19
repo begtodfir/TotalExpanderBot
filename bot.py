@@ -42,11 +42,12 @@ def vt_check(exp_url):
     vt_id = requests.post(VT_URL, data=exp_url_vt, headers=headers)
     vt_id_clean = vt_id.json()['data']['id']
     vt_response = requests.get(VT_ID_BASE + str(vt_id_clean), headers=headers)  
-    vt_response_json = json.loads(vt_response.content.decode('utf-8'))
-    vt_response_malicious_count = vt_response_json['data']['attributes']['stats']['malicious']              
+           
     if vt_response.status_code != requests.codes.ok:
         return None
     else:
+        vt_response_json = json.loads(vt_response.content.decode('utf-8'))
+        vt_response_malicious_count = vt_response_json['data']['attributes']['stats']['malicious']   
         return vt_response_malicious_count
 
 

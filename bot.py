@@ -38,13 +38,16 @@ def expand(url):
         return None
      
 def vt_check(exp_url):
-    vt_id = requests.post(VT_URL, data=exp_url, headers=headers)
-    vt_response = requests.get(VT_ID_BASE + str(vt_id), headers=headers)
-                
+    exp_url_vt = {"url": exp_url}
+    vt_id = requests.post(VT_URL, data=exp_url_vt, headers=headers)
+    vt_id_clean = vt_id.json()['data']['id']
+    vt_response = requests.get(VT_ID_BASE + str(vt_id_clean), headers=headers)  
+    vt_response_json = json.loads(vt_response.content.decode('utf-8'))
+    vt_response_malicious_count = vt_response_json['data']['attributes']['stats']['malicious']              
     if vt_response.status_code != requests.codes.ok:
         return None
     else:
-        return vt_response
+        return vt_response_malicious_count
 
 
 @client.event
@@ -72,8 +75,10 @@ async def on_message(message):
                 vt_response = vt_check(expanded_url)
                 if vt_response is None:
                     await message.channel.send('VirusTotal Analysis: Expanded URL not found in VT database. Nonetheless, treat with caution.')
+                elif '0' in str(vt_response):
+                    await message.channel.send('VirusTotal Analysis: 0 engines detected URL as malicious. Nonetheless, treat with caution.')
                 else:
-                    await message.channel.send('VirusTotal Analysis: ' + str(vt_response))
+                    await message.channel.send('VirusTotal Analysis: ' + str(vt_response) + ' engines detected as malicious! DO NOT CLICK!')
 
 
 client.run(TOKEN)

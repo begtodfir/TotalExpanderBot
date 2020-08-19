@@ -63,7 +63,7 @@ async def on_message(message):
         return
     if 'https://' not in message.content and 'http://' not in message.content:
         return
-    elif 'https://bit.ly' not in message.content and 'https://t.co' not in message.content and 'https://goo.gl' not in message.content and 'https://ow.ly' not in message.content and 'https://tinyurl' not in message.content and 'https://buff.ly' not in message.content and 'https://bit.do' not in message.content and 'https://polr' not in message.content:
+    elif 'https://bit.ly' not in message.content and 'https://t.co' not in message.content and 'https://goo.gl' not in message.content and 'https://ow.ly' not in message.content and 'https://tinyurl' not in message.content and 'https://buff.ly' not in message.content and 'https://bit.do' not in message.content and 'https://polr' not in message.content and 'http://bit.ly' not in message.content and 'http://t.co' not in message.content and 'http://goo.gl' not in message.content and 'http://ow.ly' not in message.content and 'http://tinyurl' not in message.content and 'http://buff.ly' not in message.content and 'http://bit.do' not in message.content and 'http://polr' not in message.content:
         return
     else:
         urls = FindURL(message.content)

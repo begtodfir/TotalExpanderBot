@@ -30,8 +30,9 @@ def FindURL(string):
 
 
 def redirect_check(url):
+    encoded_url = urllib.parse.quote(url)
     urls_analyzed = []
-    response = requests.get(REDIRECT_API + url)
+    response = requests.get(REDIRECT_API + encoded_url)
     for i in range(len(response.json()['data'])):
         url_to_analyze = response.json()['data'][i]['response']['info']['url']
         url_malicious_count = vt_check(url_to_analyze)

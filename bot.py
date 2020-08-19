@@ -17,9 +17,6 @@ REDIRECT_API = os.getenv('REDIRECT_API')
 headers = {"x-apikey" : VT_KEY}
 
 client = discord.Client()
-
-
-import re 
   
 def FindURL(string): 
     # findall() has been used  
@@ -71,13 +68,19 @@ async def on_message(message):
     else:
         urls = FindURL(message.content)
         for url in urls:
-            await message.channel.send('Starting URL analysis...')
+            await message.channel.send('Starting analysis for `' + url + '`...')
             redirect_urls_analyzed = redirect_check(url)
             
+            malicious_flag = False
+
             results = '```Original URL: ' + url + os.linesep + os.linesep
             for i in range(len(redirect_urls_analyzed)):
-                results += 'Redirect #' + str(i) + ': URL - `' + redirect_urls_analyzed[i]['url'] + '`, Detected by: ' + str(redirect_urls_analyzed[i]['malicious_count']) + ' AV engine(s).' + os.linesep
+                if '0' not in str(redirect_urls_analyzed[i]['malicious_count']):
+                    malicious_flag = True
+                results += 'Redirect #' + str(i) + ': URL - ' + redirect_urls_analyzed[i]['url'] + ', Detected by: ' + str(redirect_urls_analyzed[i]['malicious_count']) + ' AV engine(s).' + os.linesep
 
+            if malicious_flag:
+                results += '*** MALWARE DETECTED. DO NOT CLICK THIS LINK ***'
             results += '```'
 
             await message.channel.send(results)

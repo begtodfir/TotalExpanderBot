@@ -9,10 +9,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-EXP_BASE = os.getenv('EXP_BASE')
 VT_KEY = os.getenv('VT_KEY')
 VT_URL = os.getenv('VT_URL')
 VT_ID_BASE = os.getenv('VT_ID_BASE')
+REDIRECT_API = os.getenv('REDIRECT_API')
 
 headers = {"x-apikey" : VT_KEY}
 
@@ -28,15 +28,19 @@ def FindURL(string):
     url = re.findall(regex,string)       
     return [x[0] for x in url] 
 
-def expand(url):
-    encoded_url = urllib.parse.quote(url)
-    exp_response = requests.get(EXP_BASE + encoded_url)
-    if exp_response.status_code == requests.codes.ok:
-        exp_url = exp_response.content.decode('utf-8')
-        return exp_url
-    else:
-        return None
-     
+
+def redirect_check(url):
+    urls_analyzed = []
+    response = requests.get(REDIRECT_API + url)
+    for i in range(len(response.json()['data'])):
+        url_to_analyze = response.json()['data'][i]['response']['info']['url']
+        url_malicious_count = vt_check(url_to_analyze)
+        url_entry = { 'url' : url_to_analyze, 'malicious_count' : url_malicious_count }
+        urls_analyzed.append(url_entry)
+
+    return urls_analyzed
+
+
 def vt_check(exp_url):
     exp_url_vt = {"url": exp_url}
     vt_id = requests.post(VT_URL, data=exp_url_vt, headers=headers)
@@ -66,20 +70,15 @@ async def on_message(message):
     else:
         urls = FindURL(message.content)
         for url in urls:
-            expanded_url = expand(url)
-            if expanded_url is None:
-                await message.channel.send('Could not expand url')
-            else: 
-                await message.channel.send('Expanded URL: `' + expanded_url + "`")
+            await message.channel.send('Starting URL analysis...')
+            redirect_urls_analyzed = redirect_check(url)
+            
+            results = '```Original URL: ' + url + os.linesep + os.linesep
+            for i in range(len(redirect_urls_analyzed)):
+                results += 'Redirect #' + str(i) + ': URL - `' + redirect_urls_analyzed[i]['url'] + '`, Detected by: ' + str(redirect_urls_analyzed[i]['malicious_count']) + ' AV engine(s).' + os.linesep
 
-                # VT Analysis
-                vt_response = vt_check(expanded_url)
-                if vt_response is None:
-                    await message.channel.send('VirusTotal Analysis: Expanded URL not found in VT database. Nonetheless, treat with caution.')
-                elif '0' in str(vt_response):
-                    await message.channel.send('VirusTotal Analysis: 0 engines detected URL as malicious. Nonetheless, treat with caution.')
-                else:
-                    await message.channel.send('VirusTotal Analysis: ' + str(vt_response) + ' engines detected URL as malicious! DO NOT CLICK!')
+            results += '```'
 
+            await message.channel.send(results)
 
 client.run(TOKEN)

@@ -68,21 +68,34 @@ async def on_message(message):
     else:
         urls = FindURL(message.content)
         for url in urls:
-            await message.channel.send('Starting analysis for `' + url + '`...')
-            redirect_urls_analyzed = redirect_check(url)
+            if '@' in url or 'everyone' in url or '`' in url or '%40' in url or '%60' in url or "65%76%65%72%79%6F%6E%65" in url or 'here' in url or "%68%65%72%65" in url: 
+                break
+            else:
+                await message.channel.send('Starting analysis for `' + url + '`...')
+                redirect_urls_analyzed = redirect_check(url)
             
-            malicious_flag = False
+                malicious_flag = False
 
-            results = '```Original URL: ' + url + os.linesep + os.linesep
-            for i in range(len(redirect_urls_analyzed)):
-                if '0' not in str(redirect_urls_analyzed[i]['malicious_count']):
-                    malicious_flag = True
-                results += 'Redirect #' + str(i) + ': URL - ' + redirect_urls_analyzed[i]['url'] + ', Detected by: ' + str(redirect_urls_analyzed[i]['malicious_count']) + ' AV engine(s).' + os.linesep
+                results = '```Original URL: ' + url + os.linesep + os.linesep
+                for i in range(len(redirect_urls_analyzed)):
+                    url = redirect_urls_analyzed[i]['url']
+                    if '@' in url or 'everyone' in url or '`' in url or '%40' in url or '%60' in url or "65%76%65%72%79%6F%6E%65" in url or 'here' in url or "%68%65%72%65" in url: 
+                        break
+                    if '0' not in str(redirect_urls_analyzed[i]['malicious_count']):
+                        malicious_flag = True
+                    else:
+                        second_try = vt_check(redirect_urls_analyzed[i]['url'])
+                        if '0' not in str(second_try):
+                            redirect_urls_analyzed[i]['malicious_count'] = second_try
+                            malicious_flag = True
+                    results += 'Redirect #' + str(i) + ': URL - ' + redirect_urls_analyzed[i]['url'] + ', Detected by: ' + str(redirect_urls_analyzed[i]['malicious_count']) + ' AV engine(s).' + os.linesep
 
-            if malicious_flag:
-                results += '*** MALWARE DETECTED. DO NOT CLICK THIS LINK ***'
-            results += '```'
-
-            await message.channel.send(results)
+                if malicious_flag:
+                    results += '*** MALWARE DETECTED. DO NOT CLICK THIS LINK ***'
+                results += '```'
+                
+                results.replace("everyone", "")
+                results.replace("here", "")
+                await message.channel.send(results)
 
 client.run(TOKEN)

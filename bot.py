@@ -96,6 +96,7 @@ async def on_message(message):
                 
                 results.replace("everyone", "")
                 results.replace("here", "")
+                results.replace("`", "")
                 await message.channel.send(results)
 
 client.run(TOKEN)
